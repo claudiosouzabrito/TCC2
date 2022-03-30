@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/cloud/ROS/TCC_workspace/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/cloud/ROS/TCC_workspace/src/robot_description/include/**",
+        "/home/cloud/ROS/TCC_workspace/src/turtlebot3_fake/include/**",
+        "/home/cloud/ROS/TCC_workspace/src/turtlebot3_gazebo/include/**",
+        "/home/cloud/ROS/TCC_workspace/src/turtlebot3_slam/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}
