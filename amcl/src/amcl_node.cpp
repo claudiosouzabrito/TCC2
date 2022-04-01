@@ -115,7 +115,7 @@ angle_diff(double a, double b)
     return(d2);
 }
 
-static const std::string scan_topic_ = "my_robot/rplidar/laser/scan";
+static const std::string scan_topic_ = "scan";
 
 /* This function is only useful to have the whole code work
  * with old rosbags that have trailing slashes for their frames
@@ -436,7 +436,7 @@ AmclNode::AmclNode() :
   private_nh_.param("update_min_d", d_thresh_, 0.2);
   private_nh_.param("update_min_a", a_thresh_, M_PI/6.0);
   private_nh_.param("odom_frame_id", odom_frame_id_, std::string("odom"));
-  private_nh_.param("base_frame_id", base_frame_id_, std::string("carcaca"));
+  private_nh_.param("base_frame_id", base_frame_id_, std::string("base_link"));
   private_nh_.param("global_frame_id", global_frame_id_, std::string("map"));
   private_nh_.param("resample_interval", resample_interval_, 2);
   private_nh_.param("selective_resampling", selective_resampling_, false);
@@ -478,11 +478,11 @@ AmclNode::AmclNode() :
   nomotion_update_srv_= nh_.advertiseService("request_nomotion_update", &AmclNode::nomotionUpdateCallback, this);
   set_map_srv_= nh_.advertiseService("set_map", &AmclNode::setMapCallback, this);
 
-  laser_scan_sub_ = new message_filters::Subscriber<sensor_msgs::LaserScan>(nh_, "my_robot/rplidar/laser/scan", 100);
+  laser_scan_sub_ = new message_filters::Subscriber<sensor_msgs::LaserScan>(nh_, scan_topic_, 100);
   laser_scan_filter_ = 
           new tf2_ros::MessageFilter<sensor_msgs::LaserScan>(*laser_scan_sub_,
                                                              *tf_,
-                                                             "odom",
+                                                             odom_frame_id_,
                                                              100,
                                                              nh_);
   laser_scan_filter_->registerCallback(boost::bind(&AmclNode::laserReceived,
@@ -657,7 +657,7 @@ void AmclNode::reconfigureCB(AMCLConfig &config, uint32_t level)
   laser_scan_filter_ = 
           new tf2_ros::MessageFilter<sensor_msgs::LaserScan>(*laser_scan_sub_,
                                                              *tf_,
-                                                             "odom",
+                                                             odom_frame_id_,
                                                              100,
                                                              nh_);
   laser_scan_filter_->registerCallback(boost::bind(&AmclNode::laserReceived,
@@ -878,7 +878,7 @@ AmclNode::handleMapMessage(const nav_msgs::OccupancyGrid& msg)
            msg.info.height,
            msg.info.resolution);
   
-  if(msg.header.frame_id != "map")
+  if(msg.header.frame_id != global_frame_id_)
     ROS_WARN("Frame_id of map received:'%s' doesn't match global_frame_id:'%s'. This could cause issues with reading published topics",
              msg.header.frame_id.c_str(),
              global_frame_id_.c_str());
@@ -1026,7 +1026,7 @@ AmclNode::getOdomPose(geometry_msgs::PoseStamped& odom_pose,
   tf2::toMsg(tf2::Transform::getIdentity(), ident.pose);
   try
   {
-    this->tf_->transform(ident, odom_pose, "odom");
+    this->tf_->transform(ident, odom_pose, odom_frame_id_);
   }
   catch(tf2::TransformException e)
   {
@@ -1142,7 +1142,7 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
     geometry_msgs::PoseStamped laser_pose;
     try
     {
-      this->tf_->transform(ident, laser_pose, "carcaca");
+      this->tf_->transform(ident, laser_pose, base_frame_id_);
     }
     catch(tf2::TransformException& e)
     {
@@ -1173,7 +1173,7 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
   // Where was the robot when this scan was taken?
   pf_vector_t pose;
   if(!getOdomPose(latest_odom_pose_, pose.v[0], pose.v[1], pose.v[2],
-                  laser_scan->header.stamp, "carcaca"))
+                  laser_scan->header.stamp, base_frame_id_))
   {
     ROS_ERROR("Couldn't determine robot's pose associated with laser scan");
     return;
@@ -1264,8 +1264,8 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
     tf2::convert(q, inc_q.quaternion);
     try
     {
-      tf_->transform(min_q, min_q, "carcaca");
-      tf_->transform(inc_q, inc_q, "carcaca");
+      tf_->transform(min_q, min_q, base_frame_id_);
+      tf_->transform(inc_q, inc_q, base_frame_id_);
     }
     catch(tf2::TransformException& e)
     {
@@ -1338,7 +1338,7 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
     {
       geometry_msgs::PoseArray cloud_msg;
       cloud_msg.header.stamp = ros::Time::now();
-      cloud_msg.header.frame_id = "carcaca";
+      cloud_msg.header.frame_id = global_frame_id_;
       cloud_msg.poses.resize(set->sample_count);
       for(int i=0;i<set->sample_count;i++)
       {
@@ -1398,7 +1398,7 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
 
       geometry_msgs::PoseWithCovarianceStamped p;
       // Fill in the header
-      p.header.frame_id = "map";
+      p.header.frame_id = global_frame_id_;
       p.header.stamp = laser_scan->header.stamp;
       // Copy in the pose
       p.pose.pose.position.x = hyps[max_weight_hyp].pf_pose_mean.v[0];
@@ -1453,11 +1453,11 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
                                               0.0));
 
         geometry_msgs::PoseStamped tmp_tf_stamped;
-        tmp_tf_stamped.header.frame_id = "carcaca";
+        tmp_tf_stamped.header.frame_id = base_frame_id_;
         tmp_tf_stamped.header.stamp = laser_scan->header.stamp;
         tf2::toMsg(tmp_tf.inverse(), tmp_tf_stamped.pose);
 
-        this->tf_->transform(tmp_tf_stamped, odom_to_map, "odom");
+        this->tf_->transform(tmp_tf_stamped, odom_to_map, odom_frame_id_);
       }
       catch(tf2::TransformException)
       {
@@ -1475,9 +1475,9 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
         ros::Time transform_expiration = (laser_scan->header.stamp +
                                           transform_tolerance_);
         geometry_msgs::TransformStamped tmp_tf_stamped;
-        tmp_tf_stamped.header.frame_id = "map";
+        tmp_tf_stamped.header.frame_id = global_frame_id_;
         tmp_tf_stamped.header.stamp = transform_expiration;
-        tmp_tf_stamped.child_frame_id = "odom";
+        tmp_tf_stamped.child_frame_id = odom_frame_id_;
         tf2::convert(latest_tf_.inverse(), tmp_tf_stamped.transform);
 
         this->tfb_->sendTransform(tmp_tf_stamped);
@@ -1498,9 +1498,9 @@ AmclNode::laserReceived(const sensor_msgs::LaserScanConstPtr& laser_scan)
       ros::Time transform_expiration = (laser_scan->header.stamp +
                                         transform_tolerance_);
       geometry_msgs::TransformStamped tmp_tf_stamped;
-      tmp_tf_stamped.header.frame_id = "map";
+      tmp_tf_stamped.header.frame_id = global_frame_id_;
       tmp_tf_stamped.header.stamp = transform_expiration;
-      tmp_tf_stamped.child_frame_id = "odom";
+      tmp_tf_stamped.child_frame_id = odom_frame_id_;
       tf2::convert(latest_tf_.inverse(), tmp_tf_stamped.transform);
       this->tfb_->sendTransform(tmp_tf_stamped);
     }
@@ -1534,7 +1534,7 @@ AmclNode::handleInitialPoseMessage(const geometry_msgs::PoseWithCovarianceStampe
     ROS_WARN("Received initial pose with empty frame_id.  You should always supply a frame_id.");
   }
   // We only accept initial pose estimates in the global frame, #5148.
-  else if(stripSlash(msg.header.frame_id) != "map")
+  else if(stripSlash(msg.header.frame_id) != global_frame_id_)
   {
     ROS_WARN("Ignoring initial pose in frame \"%s\"; initial poses must be in the global frame, \"%s\"",
              stripSlash(msg.header.frame_id).c_str(),
@@ -1549,9 +1549,9 @@ AmclNode::handleInitialPoseMessage(const geometry_msgs::PoseWithCovarianceStampe
   {
     ros::Time now = ros::Time::now();
     // wait a little for the latest tf to become available
-    tx_odom = tf_->lookupTransform("carcaca", msg.header.stamp,
-                                   "carcaca", ros::Time::now(),
-                                   "odom", ros::Duration(0.5));
+    tx_odom = tf_->lookupTransform(base_frame_id_, msg.header.stamp,
+                                   base_frame_id_, ros::Time::now(),
+                                   odom_frame_id_, ros::Duration(0.5));
   }
   catch(tf2::TransformException e)
   {

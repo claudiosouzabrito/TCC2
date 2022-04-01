@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/cloud/ROS/TCC/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/cloud/ROS/TCC/src/amcl/include/**",
+        "/home/cloud/ROS/TCC/src/robot_control/include/**",
+        "/home/cloud/ROS/TCC/src/robot_description/include/**",
+        "/home/cloud/ROS/TCC/src/turtlebot3_fake/include/**",
+        "/home/cloud/ROS/TCC/src/turtlebot3_gazebo/include/**",
+        "/home/cloud/ROS/TCC/src/turtlebot3_slam/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
