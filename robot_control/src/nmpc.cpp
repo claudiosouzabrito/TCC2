@@ -1,7 +1,9 @@
 #include "../include/nmpc.h"
 #include <math.h>
+#include <iostream>
+using namespace std;
 
-Vout NMPC::NMPController(MyRobot iRobot, Trajectory Traj){
+Vout NMPC::NMPController(MyCloud cloud, MyRobot iRobot, Trajectory Traj){
 
     
 
@@ -51,8 +53,10 @@ Vout NMPC::NMPController(MyRobot iRobot, Trajectory Traj){
         Uref(1,i) = Traj.w_ref;    //w
     }
 
-    simRobot.x = iRobot.x_rob;
-    simRobot.y = iRobot.y_rob;
+    simRobot.x = cloud.x;
+    simRobot.y = cloud.y;
+    // cout << "debugando cloud.x = " << cloud.x << " , cloud.y = " << cloud.y << endl;
+    // cout << "debugando iRobot.x_rob = " << iRobot.x_rob << " , iRobot.y_rob = " << iRobot.y_rob << endl;
     simRobot.teta = iRobot.teta_rob;
     simRobot.v = iRobot.v_rob;
     simRobot.w = iRobot.w_rob;
@@ -104,8 +108,8 @@ Vout NMPC::NMPController(MyRobot iRobot, Trajectory Traj){
                 }
 
                 //Reset robot initial state for each simulation
-                simRobot.x = iRobot.x_rob;
-                simRobot.y = iRobot.y_rob;
+                simRobot.x = cloud.x;
+                simRobot.y = cloud.y;
                 simRobot.teta = iRobot.teta_rob;
                 simRobot.v = iRobot.v_rob;
                 simRobot.w = iRobot.w_rob;
@@ -173,8 +177,8 @@ Vout NMPC::NMPController(MyRobot iRobot, Trajectory Traj){
         // cout << "Linha 165, Jsteps_prev = " << Jsteps_prev << endl;
         
 
-        simRobot.x = iRobot.x_rob;
-        simRobot.y = iRobot.y_rob;
+        simRobot.x = cloud.x;
+        simRobot.y = cloud.y;
         simRobot.teta = iRobot.teta_rob;
         simRobot.v = iRobot.v_rob;
         simRobot.w = iRobot.w_rob;
@@ -242,8 +246,8 @@ void NMPC::CloudCallback(const geometry_msgs::PoseArray& pose){
         cloud.y += pose.poses[i].position.y;        
     }
     
-    cloud.x = cloud.x/size;
-    cloud.y = cloud.y/size;
+    cloud.x = cloud.x/size + 4.52;
+    cloud.y = cloud.y/size + 2.37;
     
     
 

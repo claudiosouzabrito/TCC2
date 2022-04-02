@@ -66,7 +66,7 @@ class NMPC{
         MyRobot iRobot;
         MyCloud cloud;
 
-        Vout NMPController(MyRobot iRobot, Trajectory Traj);
+        Vout NMPController(MyCloud cloud, MyRobot iRobot, Trajectory Traj);
          
         void OdomCallback(const nav_msgs::Odometry::ConstPtr& vel);
         void CloudCallback(const geometry_msgs::PoseArray& pose);
