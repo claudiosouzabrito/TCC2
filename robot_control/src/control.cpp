@@ -79,7 +79,7 @@ int main(int argc, char** argv){
     Trajectory traj;
     traj.v_ref = 0;
     traj.w_ref = 0;
-    Rate loop_rate1(1.5);
+    Rate loop_rate1(2.8);
     vector<double> VW = {0.0, 0.0};
     NMPC nmpc = NMPC();
     Publisher velPub = nmpc.node_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
@@ -118,11 +118,12 @@ int main(int argc, char** argv){
 
         cout << "Querendo ir para X = " << traj.x_ref << ", Y = " << traj.y_ref << endl;
         cout << "iRobot.x = " << nmpc.iRobot.x_rob << ", iRobot.y = " << nmpc.iRobot.y_rob << endl;
+        cout << "amcl.x = " << nmpc.cloud.x + 4.52 << ", amcl.y = " << nmpc.cloud.y + 2.37 << endl;
         cout << "velo.linear.x = " << msg.linear.x << ", velo.angular.z = " << msg.angular.z << endl;
         
         velPub.publish(msg);
 
-        loop_rate1.sleep();
+        loop_rate1.sleep(); 
                 
 
         cout << endl;
