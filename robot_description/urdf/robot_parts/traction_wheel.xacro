@@ -24,7 +24,7 @@
 
         <link name="${prefix}">
             <inertial>
-                <mass value="1" />
+                <mass value="0.7" />
                 <origin rpy="0 0 0" xyz="0 0 0" />
                 <inertia ixx="0.001" ixy="0.0" ixz="0.0"
                 iyy="0.001" iyz="0.0"
