@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /RobotModel1
       Splitter Ratio: 0.5
     Tree Height: 407
   - Class: rviz/Selection
@@ -52,7 +53,7 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: map
       Value: false
-    - Alpha: 1
+    - Alpha: 0.10000000149011612
       Class: rviz/RobotModel
       Collision Enabled: true
       Enabled: true
