@@ -84,50 +84,51 @@ int main(int argc, char** argv){
     NMPC nmpc = NMPC();
     Publisher velPub = nmpc.node_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 
-    // while(ros::ok){
-    //     spinOnce();
-    //     cout << "iRobot.x = " << nmpc.iRobot.x_rob << ", iRobot.y = " << nmpc.iRobot.y_rob << endl;
-    //     cout << "amcl.x = " << nmpc.cloud.x + 4.52 << ", amcl.y = " << nmpc.cloud.y + 2.37 << endl;
-    //     loop_rate1.sleep();
-                
-
-    //     cout << endl;
-    // }
-
-    for(int i = 0; i < xref.size(); i++) {
+    while(ros::ok){
         spinOnce();
-        cout << endl;
-
-        cout << i << endl;
-        traj.x_ref = xref[i];
-        traj.y_ref = yref[i];
-        traj.vx_ref = Vx[i];
-        traj.vy_ref = Vy[i];
-
-        VW = CalcTetaVW(Vx[i], acelX[i], Vy[i], acelY[i]);
-
-        traj.v_ref = VW[0];
-        traj.w_ref = VW[1];
-
-        nmpc.velocity = nmpc.NMPController(nmpc.cloud, nmpc.iRobot, traj);
-        
-
-        geometry_msgs::Twist msg;
-        msg.linear.x = nmpc.velocity.v_out;
-        msg.angular.z = nmpc.velocity.w_out;
-
-        cout << "Querendo ir para X = " << traj.x_ref << ", Y = " << traj.y_ref << endl;
         cout << "iRobot.x = " << nmpc.iRobot.x_rob << ", iRobot.y = " << nmpc.iRobot.y_rob << endl;
-        cout << "amcl.x = " << nmpc.cloud.x << ", amcl.y = " << nmpc.cloud.y  << endl;
-        cout << "velo.linear.x = " << msg.linear.x << ", velo.angular.z = " << msg.angular.z << endl;
-        
-        velPub.publish(msg);
-
-        loop_rate1.sleep(); 
+        cout << "ekf.x = " << nmpc.ekf.x << ", ekf.y = " << nmpc.ekf.y << endl;
+        cout << "amcl.x = " << nmpc.cloud.x << ", amcl.y = " << nmpc.cloud.y << endl;
+        loop_rate1.sleep();
                 
 
         cout << endl;
     }
+
+    // for(int i = 0; i < xref.size(); i++) {
+    //     spinOnce();
+    //     cout << endl;
+
+    //     cout << i << endl;
+    //     traj.x_ref = xref[i];
+    //     traj.y_ref = yref[i];
+    //     traj.vx_ref = Vx[i];
+    //     traj.vy_ref = Vy[i];
+
+    //     VW = CalcTetaVW(Vx[i], acelX[i], Vy[i], acelY[i]);
+
+    //     traj.v_ref = VW[0];
+    //     traj.w_ref = VW[1];
+
+    //     nmpc.velocity = nmpc.NMPController(nmpc.ekf, nmpc.cloud, nmpc.iRobot, traj);
+        
+
+    //     geometry_msgs::Twist msg;
+    //     msg.linear.x = nmpc.velocity.v_out;
+    //     msg.angular.z = nmpc.velocity.w_out;
+
+    //     cout << "Querendo ir para X = " << traj.x_ref << ", Y = " << traj.y_ref << endl;
+    //     cout << "iRobot.x = " << nmpc.iRobot.x_rob << ", iRobot.y = " << nmpc.iRobot.y_rob << endl;
+    //     cout << "amcl.x = " << nmpc.cloud.x << ", amcl.y = " << nmpc.cloud.y  << endl;
+    //     cout << "velo.linear.x = " << msg.linear.x << ", velo.angular.z = " << msg.angular.z << endl;
+        
+    //     velPub.publish(msg);
+
+    //     loop_rate1.sleep(); 
+                
+
+    //     cout << endl;
+    // }
     
 
 

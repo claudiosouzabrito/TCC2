@@ -45,6 +45,16 @@ class MyRobot{
 
 };
 
+class MyEkf{
+    public:
+        MyEkf(): x(0), y(0), teta(0){}
+
+        double x;
+        double y;
+        double teta;
+
+};
+
 class MyCloud{
     public:
         MyCloud(): x(0), y(0) {}

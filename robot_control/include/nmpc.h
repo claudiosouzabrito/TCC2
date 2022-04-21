@@ -52,7 +52,7 @@ class NMPC{
 
         NMPC(){
             //subscreve valores do EKF
-            //ekf_estim = node_.subscribe("/imu", 1, &NMPC::OdomCallback, this);
+            ekf_estim = node_.subscribe("robot_pose_ekf/odom_combined", 1, &NMPC::EkfCallback, this);
 
             //subscreve valores de velocidade do robo
             Rob_vel = node_.subscribe("/odom", 1, &NMPC::OdomCallback, this);
@@ -65,11 +65,13 @@ class NMPC{
         Vout velocity;    
         MyRobot iRobot;
         MyCloud cloud;
+        MyEkf ekf;
 
-        Vout NMPController(MyCloud cloud, MyRobot iRobot, Trajectory Traj);
+        Vout NMPController(MyEkf ekf, MyCloud cloud, MyRobot iRobot, Trajectory Traj);
          
         void OdomCallback(const nav_msgs::Odometry::ConstPtr& vel);
         void CloudCallback(const geometry_msgs::PoseArray& pose);
+        void EkfCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& kf);
 
         //void VelCallback(const nav_msgs::Odometry::ConstPtr& vel);
         double CostFunction(TRobotStateSim Robot, TTargetStateSim Target, Matrix2d& Ut);

@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-Vout NMPC::NMPController(MyCloud cloud, MyRobot iRobot, Trajectory Traj){
+Vout NMPC::NMPController(MyEkf ekf, MyCloud cloud, MyRobot iRobot, Trajectory Traj){
 
     
 
@@ -237,6 +237,18 @@ void NMPC::OdomCallback(const nav_msgs::Odometry::ConstPtr& vel){
 
 }
 
+void NMPC::EkfCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& kf){
+
+   
+    ekf.x = kf->pose.pose.position.x;
+    ekf.y = kf->pose.pose.position.y;
+    ekf.teta = 2*atan2(kf->pose.pose.orientation.z,
+                              kf->pose.pose.orientation.w);
+
+    
+
+}
+
 void NMPC::CloudCallback(const geometry_msgs::PoseArray& pose){
 
     int size = pose.poses.size();
@@ -248,9 +260,6 @@ void NMPC::CloudCallback(const geometry_msgs::PoseArray& pose){
     
     cloud.x = cloud.x/size + 4.52;
     cloud.y = cloud.y/size + 2.37;
-    
-    
-
 }
 
 double NMPC::CostFunction(TRobotStateSim Robot, TTargetStateSim Target, Matrix2d& Ut){

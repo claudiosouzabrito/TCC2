@@ -1,7 +1,7 @@
 <launch>
 
 <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
-  <param name="output_frame" value="odom"/>
+  <param name="output_frame" value="odom_combined"/>
   <param name="base_footprint_frame" value="carcaca"/>
   <param name="freq" value="30.0"/>
   <param name="sensor_timeout" value="1.0"/>  
@@ -11,5 +11,7 @@
 
   <remap from="imu_data" to="imu" />
 </node>
+
+<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher" args="0 0 0 0 0 0 odom_combined carcaca 100" />
 
 </launch>

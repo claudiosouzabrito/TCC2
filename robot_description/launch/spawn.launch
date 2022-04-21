@@ -6,7 +6,7 @@
     <arg name="z" default="0.02" />
     <arg name="yaw" default="0.0"/>
     <arg name="debug" default="false" />
-    <arg name="gui" default="true" />
+    <arg name="gui" default="false" />
     <arg name="pause" default="false" />
     <arg name="world" default="laser" />
 
@@ -37,9 +37,9 @@
     -param robot_description -model my_robot -x $(arg x) -y $(arg y) -z $(arg z) -Y $(arg yaw)"></node>
     
     <!-- send fake joint values -->
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-    <param name="use_gui" value="TRUE"/>
-  </node>
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+      <param name="use_gui" value="TRUE"/>
+    </node>
     <!-- Combine joint values -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
