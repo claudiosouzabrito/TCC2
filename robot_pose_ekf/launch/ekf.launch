@@ -12,6 +12,6 @@
   <remap from="imu_data" to="imu" />
 </node>
 
-<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher" args="0 0 0 0 0 0 odom_combined carcaca 100" />
+<!-- <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher" args="0 0 0 0 0 0 odom_combined carcaca 100" /> -->
 
 </launch>
