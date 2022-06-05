@@ -7,6 +7,8 @@ Panels:
         - /Global Options1
         - /Status1
         - /RobotModel1
+        - /LaserScan1
+        - /PoseArray1
       Splitter Ratio: 0.5
     Tree Height: 407
   - Class: rviz/Selection
@@ -163,7 +165,7 @@ Visualization Manager:
       Use Timestamp: false
       Value: false
     - Alpha: 1
-      Arrow Length: 0.30000001192092896
+      Arrow Length: 0.029999999329447746
       Axes Length: 0.30000001192092896
       Axes Radius: 0.009999999776482582
       Class: rviz/PoseArray
@@ -206,7 +208,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0.004203539341688156
+      Angle: -0.0007964624091982841
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
@@ -216,10 +218,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 47.57549285888672
+      Scale: 60.89670181274414
       Target Frame: map
-      X: 0.07508835196495056
-      Y: -0.30118870735168457
+      X: 0.13901713490486145
+      Y: -0.2679801881313324
     Saved: ~
 Window Geometry:
   Displays:

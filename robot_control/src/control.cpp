@@ -2,6 +2,7 @@
 
 
 #include "../include/nmpc.h"
+#include <gazebo_msgs/GetModelState.h>
 #include <math.h>
 #include <numeric>
 #include <ros/ros.h>
@@ -9,6 +10,7 @@
 
 using namespace std;
 using namespace ros;
+using namespace gazebo_msgs;
 int MAP_X = 212;
 int MAP_Y = 442;
 
@@ -84,51 +86,64 @@ int main(int argc, char** argv){
     NMPC nmpc = NMPC();
     Publisher velPub = nmpc.node_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 
-    while(ros::ok){
-        spinOnce();
-        cout << "iRobot.x = " << nmpc.iRobot.x_rob << ", iRobot.y = " << nmpc.iRobot.y_rob << endl;
-        cout << "ekf.x = " << nmpc.ekf.x << ", ekf.y = " << nmpc.ekf.y << endl;
-        cout << "amcl.x = " << nmpc.cloud.x << ", amcl.y = " << nmpc.cloud.y << endl;
-        loop_rate1.sleep();
-                
+    ServiceClient position_client = no.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    GetModelState objstate;
+    geometry_msgs::Pose pose_real;
 
-        cout << endl;
-    }
 
-    // for(int i = 0; i < xref.size(); i++) {
+
+    // while(ros::ok){
     //     spinOnce();
-    //     cout << endl;
-
-    //     cout << i << endl;
-    //     traj.x_ref = xref[i];
-    //     traj.y_ref = yref[i];
-    //     traj.vx_ref = Vx[i];
-    //     traj.vy_ref = Vy[i];
-
-    //     VW = CalcTetaVW(Vx[i], acelX[i], Vy[i], acelY[i]);
-
-    //     traj.v_ref = VW[0];
-    //     traj.w_ref = VW[1];
-
-    //     nmpc.velocity = nmpc.NMPController(nmpc.ekf, nmpc.cloud, nmpc.iRobot, traj);
-        
-
-    //     geometry_msgs::Twist msg;
-    //     msg.linear.x = nmpc.velocity.v_out;
-    //     msg.angular.z = nmpc.velocity.w_out;
-
-    //     cout << "Querendo ir para X = " << traj.x_ref << ", Y = " << traj.y_ref << endl;
     //     cout << "iRobot.x = " << nmpc.iRobot.x_rob << ", iRobot.y = " << nmpc.iRobot.y_rob << endl;
-    //     cout << "amcl.x = " << nmpc.cloud.x << ", amcl.y = " << nmpc.cloud.y  << endl;
-    //     cout << "velo.linear.x = " << msg.linear.x << ", velo.angular.z = " << msg.angular.z << endl;
-        
-    //     velPub.publish(msg);
-
-    //     loop_rate1.sleep(); 
+    //     cout << "ekf.x = " << nmpc.ekf.x << ", ekf.y = " << nmpc.ekf.y << endl;
+    //     cout << "amcl.x = " << nmpc.cloud.x << ", amcl.y = " << nmpc.cloud.y << endl;
+    //     loop_rate1.sleep();
                 
 
     //     cout << endl;
     // }
+    objstate.request.model_name = "my_robot";
+    //objstate.request.relative_entity_name = "my_robot";
+
+    for(int i = 0; i < xref.size(); i++) {
+        spinOnce();
+        cout << endl;
+
+        cout << i << endl;
+        traj.x_ref = xref[i];
+        traj.y_ref = yref[i];
+        traj.vx_ref = Vx[i];
+        traj.vy_ref = Vy[i];
+
+        VW = CalcTetaVW(Vx[i], acelX[i], Vy[i], acelY[i]);
+
+        traj.v_ref = VW[0];
+        traj.w_ref = VW[1];
+
+        nmpc.velocity = nmpc.NMPController(nmpc.ekf, nmpc.cloud, nmpc.iRobot, traj);
+        
+
+        geometry_msgs::Twist msg;
+        msg.linear.x = nmpc.velocity.v_out;
+        msg.angular.z = nmpc.velocity.w_out;
+
+        if(position_client.call(objstate)){
+            pose_real = objstate.response.pose;
+        }
+
+        cout << "Querendo ir para X = " << traj.x_ref << ", Y = " << traj.y_ref << endl;
+        cout << "Gazebo.x = " << pose_real.position.x << ", Gazebo.y = " << pose_real.position.y << endl; 
+        cout << "iRobot.x = " << nmpc.iRobot.x_rob << ", iRobot.y = " << nmpc.iRobot.y_rob << endl;
+        cout << "amcl.x = " << nmpc.cloud.x << ", amcl.y = " << nmpc.cloud.y  << endl;
+        cout << "velo.linear.x = " << msg.linear.x << ", velo.angular.z = " << msg.angular.z << endl;
+        
+        velPub.publish(msg);
+
+        loop_rate1.sleep(); 
+                
+
+        cout << endl;
+    }
     
 
 
